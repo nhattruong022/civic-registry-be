@@ -1,0 +1,12 @@
+{
+  "Version": 1,
+  "Hash": "II7N2K0Jn/lRhTWhK3PU+FQpqxCahc7wjAYHFWakYQ8=",
+  "Source": "CivicRegistry.API",
+  "BasePath": "_content/CivicRegistry.API",
+  "Mode": "Default",
+  "ManifestType": "Build",
+  "ReferencedProjectsConfiguration": [],
+  "DiscoveryPatterns": [],
+  "Assets": [],
+  "Endpoints": []
+}
