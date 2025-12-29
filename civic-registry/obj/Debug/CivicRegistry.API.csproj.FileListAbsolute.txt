@@ -1,2 +1,0 @@
-C:\Users\Nhat Truong\Downloads\civic-registry-be\civic-registry\obj\Debug\CivicRegistry.API.csproj.AssemblyReference.cache
-C:\Users\Nhat Truong\Downloads\civic-registry-be\civic-registry\obj\Debug\CivicRegistry.API.csproj.CoreCompileInputs.cache
