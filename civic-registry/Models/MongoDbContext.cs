@@ -38,13 +38,15 @@ namespace CivicRegistry.API.Models
 
         // Collections
         public IMongoCollection<User> Users => GetCollection<User>();
-        public IMongoCollection<KhuVuc> KhuVucs => GetCollection<KhuVuc>();
-        public IMongoCollection<HoKhau> HoKhaus => GetCollection<HoKhau>();
-        public IMongoCollection<NhanKhau> NhanKhaus => GetCollection<NhanKhau>();
-        public IMongoCollection<TamTruTamVang> TamTruTamVangs => GetCollection<TamTruTamVang>();
-        public IMongoCollection<KhaiSinh> KhaiSinhs => GetCollection<KhaiSinh>();
-        public IMongoCollection<KhaiTu> KhaiTus => GetCollection<KhaiTu>();
-        public IMongoCollection<LichSuThayDoi> LichSuThayDois => GetCollection<LichSuThayDoi>();
+        public IMongoCollection<Province> Provinces => GetCollection<Province>();
+        public IMongoCollection<District> Districts => GetCollection<District>();
+        public IMongoCollection<Ward> Wards => GetCollection<Ward>();
+        public IMongoCollection<Hamlet> Hamlets => GetCollection<Hamlet>();
+        public IMongoCollection<Household> Households => GetCollection<Household>();
+        public IMongoCollection<Citizen> Citizens => GetCollection<Citizen>();
+        public IMongoCollection<PopulationChange> PopulationChanges => GetCollection<PopulationChange>();
+        public IMongoCollection<CitizenRequest> CitizenRequests => GetCollection<CitizenRequest>();
+        public IMongoCollection<AuditLog> AuditLogs => GetCollection<AuditLog>();
     }
 }
 

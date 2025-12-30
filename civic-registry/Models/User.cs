@@ -31,23 +31,47 @@ namespace CivicRegistry.API.Models
         public string PasswordHash { get; set; } = string.Empty;
 
         /// <summary>
-        /// Họ và tên đầy đủ
+        /// Họ và tên đầy đủ (tùy chọn, để tương thích với dữ liệu cũ)
         /// </summary>
         [BsonElement("fullName")]
         public string? FullName { get; set; }
 
         /// <summary>
-        /// Vai trò: Admin / HoTich / ThongKe
+        /// Vai trò: SuperAdmin / ProvinceAdmin / DistrictAdmin / WardAdmin / Citizen
         /// </summary>
         [BsonElement("role")]
         [BsonRequired]
         public string Role { get; set; } = string.Empty;
 
         /// <summary>
+        /// ID tỉnh
+        /// </summary>
+        [BsonElement("provinceId")]
+        public int? ProvinceId { get; set; }
+
+        /// <summary>
+        /// ID huyện
+        /// </summary>
+        [BsonElement("districtId")]
+        public int? DistrictId { get; set; }
+
+        /// <summary>
+        /// ID xã
+        /// </summary>
+        [BsonElement("wardId")]
+        public int? WardId { get; set; }
+
+        /// <summary>
         /// Trạng thái hoạt động
         /// </summary>
         [BsonElement("isActive")]
         public bool IsActive { get; set; } = true;
+
+        /// <summary>
+        /// Ngày tạo
+        /// </summary>
+        [BsonElement("createdAt")]
+        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     }
 }
 
