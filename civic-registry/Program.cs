@@ -1,5 +1,6 @@
-using Microsoft.EntityFrameworkCore;
+using MongoDB.Driver;
 using CivicRegistry.API.Models;
+using CivicRegistry.API.Services;
 using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -37,12 +38,25 @@ builder.Services.AddSwaggerGen(c =>
     }
 });
 
-// Entity Framework Core
-var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") 
-    ?? "Data Source=(localdb)\\MSSQLLocalDB;Initial Catalog=CivicRegistryDB;Integrated Security=True;MultipleActiveResultSets=True;TrustServerCertificate=True";
+// MongoDB Configuration
+var mongoConnectionString = builder.Configuration.GetConnectionString("MongoDB")
+    ?? "mongodb://vpadmin:Vinpet2025%40@54.255.111.176:27017/admin";
+var databaseName = builder.Configuration["MongoDB:DatabaseName"] ?? "CivicRegistryDB";
 
-builder.Services.AddDbContext<ApplicationDbContext>(options =>
-    options.UseSqlServer(connectionString));
+// Đăng ký MongoDB Client và Context
+builder.Services.AddSingleton<IMongoClient>(sp =>
+{
+    return new MongoClient(mongoConnectionString);
+});
+
+builder.Services.AddScoped<MongoDbContext>(sp =>
+{
+    var client = sp.GetRequiredService<IMongoClient>();
+    return new MongoDbContext(client, databaseName);
+});
+
+// Đăng ký MongoIndexService
+builder.Services.AddScoped<MongoIndexService>();
 
 // CORS
 builder.Services.AddCors(options =>
@@ -74,6 +88,13 @@ if (app.Environment.IsDevelopment())
 app.UseCors("AllowAll");
 
 app.UseAuthorization();
+
+// Tạo indexes khi ứng dụng khởi động
+using (var scope = app.Services.CreateScope())
+{
+    var indexService = scope.ServiceProvider.GetRequiredService<MongoIndexService>();
+    await indexService.CreateIndexesAsync();
+}
 
 app.MapControllers();
 
