@@ -19,12 +19,24 @@ namespace CivicRegistry.API.Services
         }
 
         /// <summary>
-        /// Lấy danh sách tất cả users
+        /// Lấy danh sách users (có thể lọc theo role)
         /// </summary>
-        public async Task<List<UserInfo>> GetAllUsersAsync()
+        /// <param name="role">Role để lọc (optional). Nếu null thì lấy tất cả</param>
+        public async Task<List<UserInfo>> GetAllUsersAsync(string? role = null)
         {
+            FilterDefinition<User> filter;
+            
+            if (!string.IsNullOrEmpty(role))
+            {
+                filter = Builders<User>.Filter.Eq(u => u.Role, role);
+            }
+            else
+            {
+                filter = Builders<User>.Filter.Empty;
+            }
+
             var users = await _context.Users
-                .Find(_ => true)
+                .Find(filter)
                 .ToListAsync();
 
             return users.Select(u => new UserInfo
@@ -35,6 +47,69 @@ namespace CivicRegistry.API.Services
                 Role = u.Role,
                 IsActive = u.IsActive
             }).ToList();
+        }
+
+        /// <summary>
+        /// Lấy danh sách users có phân trang (có thể lọc theo role)
+        /// </summary>
+        /// <param name="page">Số trang (mặc định: 1)</param>
+        /// <param name="pageSize">Số item mỗi trang (mặc định: 20, tối đa: 100)</param>
+        /// <param name="role">Role để lọc (optional). Nếu null thì lấy tất cả</param>
+        public async Task<PaginatedResponse<UserInfo>> GetUsersPaginatedAsync(int page = 1, int pageSize = 20, string? role = null)
+        {
+            FilterDefinition<User> filter;
+            
+            if (!string.IsNullOrEmpty(role))
+            {
+                filter = Builders<User>.Filter.Eq(u => u.Role, role);
+            }
+            else
+            {
+                filter = Builders<User>.Filter.Empty;
+            }
+
+            // Đảm bảo page và pageSize hợp lệ
+            if (page < 1) page = 1;
+            if (pageSize < 1) pageSize = 20;
+            if (pageSize > 100) pageSize = 100; // Giới hạn tối đa 100 items mỗi trang
+
+            // Đếm tổng số items
+            var totalItems = await _context.Users.CountDocumentsAsync(filter);
+
+            // Tính toán phân trang
+            var totalPages = (int)Math.Ceiling((double)totalItems / pageSize);
+            var skip = (page - 1) * pageSize;
+
+            // Lấy dữ liệu với phân trang
+            var users = await _context.Users
+                .Find(filter)
+                .SortByDescending(u => u.CreatedAt)
+                .Skip(skip)
+                .Limit(pageSize)
+                .ToListAsync();
+
+            var items = users.Select(u => new UserInfo
+            {
+                Id = u.Id,
+                Username = u.Username,
+                FullName = u.FullName,
+                Role = u.Role,
+                IsActive = u.IsActive
+            }).ToList();
+
+            return new PaginatedResponse<UserInfo>
+            {
+                Items = items,
+                Pagination = new PaginationInfo
+                {
+                    Page = page,
+                    PageSize = pageSize,
+                    TotalItems = totalItems,
+                    TotalPages = totalPages,
+                    HasNextPage = page < totalPages,
+                    HasPrevPage = page > 1
+                }
+            };
         }
 
         /// <summary>

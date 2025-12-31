@@ -1,6 +1,7 @@
 using MongoDB.Driver;
 using CivicRegistry.API.Models;
 using CivicRegistry.API.Services;
+using CivicRegistry.API.Middleware;
 using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
@@ -93,6 +94,18 @@ builder.Services.AddScoped<AuthService>();
 // Đăng ký UserService
 builder.Services.AddScoped<UserService>();
 
+// Đăng ký RequestService
+builder.Services.AddScoped<RequestService>();
+
+// Đăng ký StatisticsService
+builder.Services.AddScoped<StatisticsService>();
+
+// Đăng ký HouseholdService
+builder.Services.AddScoped<HouseholdService>();
+
+// Đăng ký SeedDataService
+builder.Services.AddScoped<SeedDataService>();
+
 // JWT Authentication
 var jwtSettings = builder.Configuration.GetSection("JwtSettings");
 var secretKey = jwtSettings["SecretKey"] ?? "YourSuperSecretKeyForJWTTokenGeneration123456789";
@@ -148,14 +161,21 @@ app.UseSwaggerUI(c =>
 
 app.UseCors("AllowAll");
 
+// JWT Authentication Middleware
+app.UseJwtAuthentication();
+
 app.UseAuthentication();
 app.UseAuthorization();
 
-// Tạo indexes khi ứng dụng khởi động
+// Tạo indexes và seed data khi ứng dụng khởi động
 using (var scope = app.Services.CreateScope())
 {
     var indexService = scope.ServiceProvider.GetRequiredService<MongoIndexService>();
     await indexService.CreateIndexesAsync();
+
+    // Seed dữ liệu mẫu
+    var seedDataService = scope.ServiceProvider.GetRequiredService<SeedDataService>();
+    await seedDataService.SeedAllAsync();
 }
 
 app.MapControllers();
